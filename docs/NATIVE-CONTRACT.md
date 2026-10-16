@@ -2,7 +2,7 @@
 
 These findings are scoped to Designer 10.5.0 (0-2609.007 10.5), statically
 inspected from a preserved local copy. Source and copied Designer DLL hashes
-matched. No original design was read or changed for this implementation.
+matched. Application checks used a separate fixture copy; the source design was preserved. See [validation](VALIDATION.md) for observed behavior and limits.
 
 | Assembly | SHA-256 |
 | --- | --- |
@@ -65,7 +65,7 @@ undo transaction is invented for this live-control action.
   exclude commands. Floating command dispatch is deferred; native Find callbacks
   may come from its own visible native panel.
 - Harmony ownership is `joshua-small.better-probes-injectors.find`. Only the
-  native selection handler and attachment add/remove methods are patched.
+  native selection handler, attachment add/remove methods and both tip FocusGeometry getters are patched.
   Attachment refresh is queued after native work; native search results are
   preserved. Initialization failure removes the mod's hooks.
 - Exact metadata checks validate member shapes and assembly identities, not
@@ -73,3 +73,19 @@ undo transaction is invented for this live-control action.
   reconstruction, encrypted container navigation or hardware behavior.
 
 Vendor binaries and raw decompilation remain outside this source repository.
+
+## Application-driven corrections
+
+The pin Find overload can target an empty PinLabel at the schematic origin.
+Attached navigation therefore calls FindAndSelect(Design.Object, Action) on the
+provider component, rechecks document/epoch/attachment, selects the exact native
+tip and defers highlighting until selection work completes. A final check requires
+that exact tip to remain selected. ProbeTip and InjectorTip each override
+FocusGeometry with null; scoped postfixes supply bounds only for the tip located
+by this mod. The native HilightManager owns the adorner. Return Home cancels
+pending navigation, clears the tip highlight and locates the owning component.
+
+Extract.DesignNet.GetPinNetName is the native attach command's address source.
+Unwired injector inputs can have an empty net name. Matching that value with
+StringNext is valid when all pin/control/value identities and tip maps agree;
+an empty address alone is not a rejection reason.

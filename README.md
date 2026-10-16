@@ -1,107 +1,78 @@
 # Better Probes & Injectors
 
 Find, cycle through, and return Q-SYS Signal Probes and Signal Injectors home.
-
-**Development candidate 0.1.0.** The source builds offline. Designer interaction,
-physical shortcuts, native Find appearance and Emulate/Run behavior still need
-application validation. This candidate has not been installed, published or
-approved for the mod catalog. Computer Use checks are deferred at the owner's
-request. See [validation and remaining checks](docs/VALIDATION.md).
+Version 0.1.0 supports the exact Designer **10.5.0 (0-2609.007 10.5)** build with
+Mods Core >=0.1.6 and <0.2.0. See [validation](docs/VALIDATION.md) for the accepted
+application scope and remaining checks.
 
 ## Native Find
 
 Select a Signal Probe or Signal Injector component and use Designer's existing
-**Find > Context** mode. The mod appends an attached-tip destination and a home
-component destination, while retaining the native results. An attached-tip
-destination invokes Designer's native pin navigation, including its page opening
-and highlighting behavior. The home destination locates the owning schematic
-component; it does not detach the tool or automatically open its control panel.
+**Find > Context** mode. The mod appends attached-tip and home-component results
+while retaining native results. The heading identifies the tool, its position
+in the type's cycle and its attachment location. Selecting the attached result
+uses native page navigation, then selects and highlights the verified tip.
+The home result locates its owning schematic component without detaching.
 
-The Find heading identifies the tool and its position in its type's cycle.
-When no reliable attachment state is available, the panel still offers its home
-component and reports that the attachment is unavailable. Absence from Designer's
-transient tip dictionary is not, by itself, evidence that a tool is home.
-
-Native Find integration, closed-page tip reconstruction and nested schematic
-navigation are implemented against inspected 10.5 internals but remain untested
-in the application. Existing snapshot and control-copy destinations are retained.
+When attachment state is unavailable, the panel still offers the home component.
+A missing transient tip dictionary entry alone does not establish that a tool is
+home. Same-page native Find is application-validated; closed-page reconstruction
+and nested schematic navigation remain untested.
 
 ## Commands
 
-The mod registers these actions with Mods Core and adds them to **Tools > Q-SYS
-Mods**. Better Shortcuts can assign keys and Command Palette can discover them;
-neither feature mod is required for the menu actions.
+Seven actions appear under **Tools > Q-SYS Mods** and register with Mods Core.
+Better Shortcuts can assign keys; Command Palette can discover registered commands.
+Neither feature mod is required for menu actions. No default keys are assigned,
+so existing bindings and Ctrl+Shift+P are unchanged.
 
 | Command | Behavior |
 | --- | --- |
 | Next / Previous Probe | Cycle probes in the current document. |
 | Next / Previous Injector | Cycle injectors independently. |
-| Find Focused Probe/Injector | Reveal the attached audio pin, or the home component when known to be unattached. |
-| Find Probe/Injector Home Component | Reveal the owning schematic component without detaching. |
-| Return Focused Probe/Injector Home | Invoke the native detach helper for exactly one resolved tool. |
+| Find Focused Probe/Injector | Reveal the attached tip, or its home when known unattached. |
+| Find Probe/Injector Home Component | Reveal the owner without detaching. |
+| Return Focused Probe/Injector Home | Detach exactly one resolved tool and locate its owner. |
 
-No default keys are assigned. Existing user assignments and Ctrl+Shift+P are
-unchanged. Assign commands in Better Shortcuts after the candidate passes its
-application checks.
+Cycles sort by page, display name and stable component GUID, wrapping in both
+directions. Unknown attachments navigate to the owner. Per-document cycle memory
+is never a fallback target for Return Home.
 
-Cycling orders each type by page name, component display name, then stable
-component GUID, and wraps in both directions. It includes tools whose attachment
-is unavailable by navigating to their home component. Each type remembers its
-cycle position for the current document. This memory is never used as a fallback
-target for Return Home.
+Focused commands require one uniquely resolved component, tool control, deployed
+tip, or audio pin/pin label with a verified attachment. Multiple and unrelated
+selections are excluded. Commands accept main-window schematic/component canvases
+and their menus. Native Find has its own guarded callback. Text/script input and
+active placement cursors are excluded. Floating dispatch, UCI and embedded-editor
+contexts are not claimed supported.
 
-The focused tool must resolve uniquely from one selected component, probe or
-injector control, deployed tip, or an audio pin/pin label with one verified active
-attachment. Multiple or unrelated selections disable focused commands. Commands
-are limited to main-window schematic/component canvas contexts and their menus;
-native Find has its own guarded callback path. Floating command dispatch, UCI and
-embedded-editor contexts are not claimed supported. Text/script input and active
-placement cursors are excluded.
+Return Home requires connected Emulate/Run state and consistent attachment data.
+It uses the native detach helper, verifies the local value/map update, clears the
+old highlight and locates the owner. It preserves gain/mute and other tools.
+Emulate behavior is validated; live Core/hardware and Undo are not established.
 
-Return Home requires a connected Emulate/Run state and a consistent native
-attachment. It clears the native attachment and verifies the local value/map
-update. It does not merely hide a graphic. It neither changes gain/mute nor
-returns other tools home. This changes the tool's signal-path attachment; runtime
-or hardware confirmation and Undo behavior have not been established.
+## Install
 
-## Build and offline checks
+Use Q-SYS Mod Manager's signed catalog. The schema-3 package contains only
+`Designer.Modules.BetterProbesInjectors.dll`; Core and Harmony remain managed
+dependencies. The mod ID is `better-probes-injectors`. Exact Designer and
+ModuleCommon hashes and Core's version are checked before registration.
+Private reflection and Harmony hooks are version-specific internals, not a public
+Q-SYS plugin API. See the [package contract](https://github.com/joshua-small/qsys-mod-catalog/blob/main/PACKAGE-CONTRACT.md).
 
-Use .NET SDK 10.0.112 from this directory. Keep an adjacent `qsys-mods-core`
-checkout at `63aa418b8872126be09a0896f25ba260fa30f457` (Core 0.1.6), or set
-`CoreProject` explicitly. Runtime support is Core >=0.1.6 and <0.2.0. Do not mix
-Windows and WSL generated outputs.
+## Build
 
-From WSL, with the supported Designer installed on Windows:
+Use .NET SDK 10.0.112 and an adjacent `qsys-mods-core` checkout at
+`63aa418b8872126be09a0896f25ba260fa30f457`, or set `CoreProject` explicitly.
+Keep Windows and WSL outputs separate. From WSL:
 
 ```sh
 bash scripts/check.sh '/mnt/c/Program Files/QSC/Q-SYS Designer 10.5' ../build
 ```
 
-The script builds the mod, runs the portable behavior tests and reads PE metadata
-to validate host contracts. It does not load vendor assemblies, launch Designer,
-use Computer Use or connect to a Core. The test projects have no third-party
-package dependencies. CI runs the portable suite; local vendor references are
-required for the full build and metadata checks.
+This builds Release, runs portable logic checks and reads host PE metadata.
+It does not execute vendor assemblies, launch Designer or connect to a Core.
+CI runs portable checks; the full local build needs installed vendor references.
+The pinned release publisher produces the catalog descriptor from a stable release.
 
-## Compatibility and packaging
-
-The supported research target is Q-SYS Designer **10.5.0 (0-2609.007 10.5)**.
-Mods Core checks the exact Designer and ModuleCommon hashes before registration.
-The mod also checks Core's version before installing hooks. Private reflection
-and Harmony hooks are version-specific implementation details, not a public
-Q-SYS plugin API.
-
-- Mod ID: `better-probes-injectors`
-- Assembly: `Designer.Modules.BetterProbesInjectors.dll`
-- Intended repository: `joshua-small/qsys-better-probes-injectors` (not created)
-- Proposed payload: only the mod assembly; Core/Harmony remain managed dependencies
-- Current work item: [Better Shortcuts #11](https://github.com/joshua-small/qsys-better-shortcuts/issues/11)
-
-Catalog metadata and release-note drafts are included for future onboarding.
-The prospective repository URL is reserved metadata, not a published project.
-No catalog approval, installable `.qdsmod`, release workflow or installation is
-included in this milestone. Onboarding must verify the exact identity, dependency
-range, shared Harmony provision and private payload against the current
-[package contract](https://github.com/joshua-small/qsys-mod-catalog/blob/main/PACKAGE-CONTRACT.md).
-
-See [implementation evidence](docs/NATIVE-CONTRACT.md) and [ownership](NOTICE.md).
+See [native contract](docs/NATIVE-CONTRACT.md), [ownership](NOTICE.md) and the
+[original work item](https://github.com/joshua-small/qsys-better-shortcuts/issues/11).

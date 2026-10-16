@@ -105,6 +105,11 @@ internal sealed class ToolNavigation(IToolHost host)
 
     internal static bool SameSelection(IReadOnlyList<object> a, IReadOnlyList<object> b) => a.Count == b.Count
         && a.All(item => b.Any(other => ReferenceEquals(item, other)));
+    internal static bool CanCompleteNavigation(Workspace before, Workspace now, ToolItem target) =>
+        ReferenceEquals(before.Document, now.Document) && before.Connected == now.Connected
+        && before.ConnectionEpoch == now.ConnectionEpoch && Unavailable(now) is null
+        && now.Tools.SingleOrDefaultSafe(t => t.Id == target.Id && ReferenceEquals(t.Component, target.Component)) is { StateKnown: true } current
+        && target.Attachment is not null && SameAttachment(target.Attachment, current.Attachment);
     private static bool SameAttachment(Attachment? a, Attachment? b) => a is null ? b is null : b is not null
         && ReferenceEquals(a.Pin, b.Pin) && ReferenceEquals(a.Control, b.Control) && ReferenceEquals(a.Value, b.Value)
         && StringComparer.Ordinal.Equals(a.Address, b.Address);
