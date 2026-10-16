@@ -26,11 +26,15 @@ internal sealed class DesignerHost : IToolHost, IDisposable
     private readonly FieldInfo activeTips;
     private readonly MethodInfo clearTip;
     private readonly MethodInfo findObject;
-    private readonly MethodInfo findPin;
+    private readonly MethodInfo findThen;
+    private readonly MethodInfo highlight, clearHighlight, select, selectionChanged;
     private readonly MethodInfo pageName;
+    private readonly MethodInfo pinNetName;
     private readonly MethodInfo resolveComponent;
     private readonly INotifyPropertyChanged connectionStatus;
     private long connectionEpoch;
+    private long navigationGeneration;
+    private bool disposed;
 
     internal DesignerHost(Window main)
     {
@@ -39,8 +43,15 @@ internal sealed class DesignerHost : IToolHost, IDisposable
         activeTips = RequiredField(TipManagerType, "_ActiveTips", Host.Static);
         clearTip = Method(Host.Type("QSC.QSys.Tools.ProbeTool"), "ClearTip", Host.Static, styleType);
         findObject = Method(findType, "FindAndSelect", Host.Static, Host.Type("QSC.QSys.Design.Object"));
-        findPin = Method(findType, "FindAndSelect", Host.Static, pinType);
+        findThen = Method(findType, "FindAndSelect", Host.Static, Host.Type("QSC.QSys.Design.Object"), typeof(Action));
+        var elementType = Host.Type("QSC.QSys.Graphic.Element");
+        var highlights = Host.Type("QSC.QSys.Graphic.HilightManager");
+        highlight = Method(highlights, "Add", Host.Static, elementType);
+        clearHighlight = Method(highlights, "Clear", Host.Static);
+        select = Method(Selection.GetType(), "Add", Host.Instance, Host.Type("QSC.QSys.Util.ISelectable"), typeof(bool));
+        selectionChanged = Method(Selection.GetType(), "OnSelectionChanged", Host.Instance);
         pageName = Method(findType, "PageNameComponentIsOn", Host.Static, componentType);
+        pinNetName = Method(Host.Type("QSC.QSys.Extract.DesignNet"), "GetPinNetName", Host.Static, pinType);
         resolveComponent = Method(Host.Type("QSC.QSys.Design.ComponentCache"), "GetComponent", Host.Static,
             Host.Type("QSC.QSys.Design.UniqueId"));
         connectionStatus = (INotifyPropertyChanged)Static("QSC.QSys.ControlConnection.Manager", "Status")!;
@@ -147,7 +158,9 @@ internal sealed class DesignerHost : IToolHost, IDisposable
                     && Get(control, "VisualStyle")?.ToString() == kind.ToString()
                     && Get(pin, "IsAttached") is true && membership.Contains(Get(pin, "Provider")!)
                     && tip is not null && ReferenceEquals(Get(tip, "Control"), control)
-                    && !string.IsNullOrEmpty(Get(value, "StringNext")?.ToString());
+                    // Native placement also permits an unwired input whose net name is empty.
+                    // Validate against the native pin net instead of treating empty as detached.
+                    && StringComparer.Ordinal.Equals(Get(value, "StringNext")?.ToString(), pinNetName.Invoke(null, [pin])?.ToString());
                 if (known)
                 {
                     var provider = Get(pin, "Provider")!;
@@ -192,13 +205,54 @@ internal sealed class DesignerHost : IToolHost, IDisposable
     public void Navigate(ToolItem tool, bool homeComponent)
     {
         main.Dispatcher.VerifyAccess();
+        long generation = ++navigationGeneration;
         if (homeComponent)
         {
             if (findObject.Invoke(null, [tool.Component]) is false) throw new InvalidOperationException("Designer could not locate the home component.");
         }
-        else findPin.Invoke(null, [tool.Attachment!.Pin]);
-        // Native Find owns page opening, nested-container traversal, highlight and selection.
-        // Its asynchronous completion is not represented as a tested visual success here.
+        else
+        {
+            var before = Capture(true);
+            var provider = Get(tool.Attachment!.Pin, "Provider")!;
+            // The native Pin overload can highlight an empty PinLabel at the canvas origin.
+            // Let native Find open the provider, then select the live tip in canvas coordinates.
+            findThen.Invoke(null, [provider, new Action(() => main.Dispatcher.Invoke(() =>
+            {
+                try
+                {
+                    if (disposed || generation != navigationGeneration || !Host.Enabled || !main.IsLoaded) return;
+                    var now = Capture(true);
+                    if (!ToolNavigation.CanCompleteNavigation(before, now, tool)) return;
+                    var selected = now.Selection.SingleOrDefault();
+                    if (selected is null || !Host.Type("QSC.QSys.Graphic.Component").IsInstanceOfType(selected)
+                        || !ReferenceEquals(Get(selected, "InnerComponent"), provider)) return;
+                    var tips = (IDictionary)activeTips.GetValue(null)!;
+                    if (tips[tool.Attachment.Value] is not { } tip
+                        || !ReferenceEquals(Get(tip, "Control"), tool.Attachment.Control)
+                        || !ReferenceEquals(Get(Get(tip, "Pin"), "InnerPin"), tool.Attachment.Pin)) return;
+                    select.Invoke(Selection, [tip, true]);
+                    selectionChanged.Invoke(Selection, null);
+                    main.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle, new Action(() =>
+                    {
+                        try
+                        {
+                            if (disposed || generation != navigationGeneration || !Host.Enabled) return;
+                            var final = Capture(true);
+                            if (!ToolNavigation.CanCompleteNavigation(before, final, tool)
+                                || final.Selection.Count != 1 || !ReferenceEquals(final.Selection[0], tip)) return;
+                            clearHighlight.Invoke(null, null);
+                            NativeFindIntegration.HighlightTip(tip);
+                            highlight.Invoke(null, [tip]);
+                            Host.Receipt(ProbeModule.Id, "tip-selected", new { tool = tool.Id, destination = tool.Attachment.Description,
+                                position = Get(tip, "Position")?.ToString(), bounds = (tip as System.Windows.Media.DrawingVisual)?.ContentBounds.ToString(),
+                                geometry = Get(tip, "FocusGeometry")?.ToString() });
+                        }
+                        catch (Exception error) { Host.Error(ProbeModule.Id, error); }
+                    }));
+                }
+                catch (Exception error) { Host.Error(ProbeModule.Id, error); }
+            }))]);
+        }
     }
 
     public void RecordReturn(ToolItem tool) => Host.RequiredReceipt(ProbeModule.Id, "return-home-start", new
@@ -213,6 +267,10 @@ internal sealed class DesignerHost : IToolHost, IDisposable
         foreach (DictionaryEntry entry in (IDictionary)activeProbes.GetValue(null)!)
             if (ReferenceEquals(entry.Value, tool.Attachment.Control))
                 throw new InvalidOperationException("Designer retained the tool's attachment entry. Inspect the tool before retrying.");
+        navigationGeneration++;
+        clearHighlight.Invoke(null, null);
+        NativeFindIntegration.ClearTipHighlight();
+        findObject.Invoke(null, [tool.Component]);
         Host.Receipt(ProbeModule.Id, "return-home-requested", new { tool = tool.Id, runtimeConfirmation = "not observed" });
     }
 
@@ -222,5 +280,5 @@ internal sealed class DesignerHost : IToolHost, IDisposable
             Method(FindAreaType, "Global_SelectionChanged", Host.Instance, Selection.GetType()).Invoke(area, [Selection]);
     }
     public void Dispose()
-    { main.PreviewGotKeyboardFocus -= FocusChanged; connectionStatus.PropertyChanged -= ConnectionChanged; }
+    { disposed = true; navigationGeneration++; main.PreviewGotKeyboardFocus -= FocusChanged; connectionStatus.PropertyChanged -= ConnectionChanged; }
 }
