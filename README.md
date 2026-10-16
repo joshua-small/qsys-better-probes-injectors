@@ -1,7 +1,7 @@
 # Better Probes & Injectors
 
 Find, cycle through, and return Q-SYS Signal Probes and Signal Injectors home.
-Version 0.1.0 supports the exact Designer **10.5.0 (0-2609.007 10.5)** build with
+Version 0.1.1 supports the exact Designer **10.5.0 (0-2609.007 10.5)** build with
 Mods Core >=0.1.6 and <0.2.0. See [validation](docs/VALIDATION.md) for the accepted
 application scope and remaining checks.
 
@@ -22,17 +22,21 @@ and nested schematic navigation remain untested.
 ## Commands
 
 Seven actions appear under **Tools > Q-SYS Mods** and register with Mods Core.
-Better Shortcuts can assign keys; Command Palette can discover registered commands.
-Neither feature mod is required for menu actions. No default keys are assigned,
-so existing bindings and Ctrl+Shift+P are unchanged.
+Mods Core supplies these defaults. Better Shortcuts can customize them; Command
+Palette can discover registered commands. Neither feature mod is required for
+menu actions or the default keys. Existing user assignments, including cleared
+bindings, take precedence. A conflicting default stays inactive until resolved
+in shortcut preferences; an upgrade never overwrites another action's keys.
 
-| Command | Behavior |
-| --- | --- |
-| Next / Previous Probe | Cycle probes in the current document. |
-| Next / Previous Injector | Cycle injectors independently. |
-| Find Focused Probe/Injector | Reveal the attached tip, or its home when known unattached. |
-| Find Probe/Injector Home Component | Reveal the owner without detaching. |
-| Return Focused Probe/Injector Home | Detach exactly one resolved tool and locate its owner. |
+| Command | Default shortcut | Behavior |
+| --- | --- | --- |
+| Next Probe | Ctrl+F11 | Cycle probes in the current document. |
+| Previous Probe | Ctrl+Shift+F11 | Cycle probes backward. |
+| Next Injector | Ctrl+F12 | Cycle injectors independently. |
+| Previous Injector | Ctrl+Shift+F12 | Cycle injectors backward. |
+| Find Focused Probe/Injector | Unassigned | Reveal the attached tip, or its home when known unattached. |
+| Find Probe/Injector Home Component | Unassigned | Reveal the owner without detaching. |
+| Return Focused Probe/Injector Home | Ctrl+Alt+H | Detach exactly one resolved tool and locate its owner. |
 
 Cycles sort by page, display name and stable component GUID, wrapping in both
 directions. Unknown attachments navigate to the owner. Per-document cycle memory
