@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "better-probes-injectors",
+  "name": "Better Probes & Injectors",
+  "description": "Find deployed Signal Probes and Injectors through native Find by Context, cycle each tool type, and return the focused tool home. Development candidate; Designer validation is pending.",
+  "author": "joshua-small",
+  "helpUrl": "https://github.com/joshua-small/qsys-better-probes-injectors",
+  "thumbnail": "catalog/artwork/avitex.ico"
+}

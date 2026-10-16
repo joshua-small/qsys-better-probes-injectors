@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF><EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <Nullable>enable</Nullable><ImplicitUsings>enable</ImplicitUsings>
+    <Version>0.1.0</Version><TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DefaultItemExcludes>$(DefaultItemExcludes);artifacts/**;tests/**</DefaultItemExcludes>
+    <CoreProject Condition="'$(CoreProject)' == ''">../qsys-mods-core/Core/Qmm.Shared.ModsCore.csproj</CoreProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(CoreProject)" Private="false" />
+    <Reference Include="ModuleCommon"><HintPath>$(DesignerDir)/ModuleCommon.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="0Harmony"><HintPath>$(DesignerDir)/0Harmony.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>
