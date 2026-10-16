@@ -98,6 +98,12 @@ Check(host.Events.SequenceEqual(["capture", "capture", "record", "capture", "ret
 Check(host.State.Tools.Single(t => t.Id == "i").Attachment is not null, "Returning a probe leaves the injector attached");
 host.State = host.State with { FocusedId = "i" };
 Check(nav.Execute(nav.Plan(ToolAction.ReturnHome)!).Succeeded && host.ReturnedId == "i", "The same guarded path supports injectors");
+Check(ToolNavigation.CanCompleteNavigation(Baseline(), Baseline() with { Selection = [new object()] }, a),
+    "Native provider selection may change while locating an attached tip");
+host.State = Baseline() with { Tools = [a with { Attachment = a.Attachment! with { Address = "" } }] };
+Check(nav.Plan(ToolAction.ReturnHome) is not null, "A verified tip on an unwired native net remains a returnable attachment");
+foreach (var (name, mutate) in mutations.Where(m => m.Name is not ("selection changed" or "focused control retargeted" or "selection cleared" or "selection expanded")))
+    Check(!ToolNavigation.CanCompleteNavigation(Baseline(), mutate(Baseline()), a), "Deferred tip selection rejects: " + name);
 Console.WriteLine($"{checks} logic checks passed; no Designer, UI or hardware was used.");
 
 internal sealed class FakeHost(Workspace state) : IToolHost

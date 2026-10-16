@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Threading;
 using HarmonyLib;
 using QsysMods.Core;
@@ -18,6 +19,32 @@ internal sealed class NativeFindIntegration : IDisposable
     private bool refreshQueued;
     private bool disposed;
     private bool reportedFailure;
+    private WeakReference<object>? highlightedTip;
+
+    internal static void HighlightTip(object tip)
+    {
+        if (active is { } integration) integration.highlightedTip = new(tip);
+    }
+
+    internal static void ClearTipHighlight()
+    {
+        if (active is { } integration) integration.highlightedTip = null;
+    }
+
+    private static void TipFocusGeometry(object __instance, ref Geometry? __result)
+    {
+        // Native tips deliberately have no focus geometry. Supply bounds only for
+        // the specific tip located by this mod; native highlighting owns the adorner.
+        if (__result is not null || active is not { disposed: false } integration
+            || integration.highlightedTip is null || !integration.highlightedTip.TryGetTarget(out var tip)
+            || !ReferenceEquals(tip, __instance) || tip is not DrawingVisual visual) return;
+        var bounds = visual.ContentBounds;
+        if (bounds.IsEmpty) return;
+        bounds.Inflate(2, 2);
+        var geometry = new RectangleGeometry(bounds);
+        geometry.Freeze();
+        __result = geometry;
+    }
 
     internal NativeFindIntegration(DesignerHost host, ToolNavigation navigation, Dispatcher dispatcher)
     { this.host = host; this.navigation = navigation; this.dispatcher = dispatcher; }
@@ -33,6 +60,8 @@ internal sealed class NativeFindIntegration : IDisposable
             var addTip = DesignerHost.Method(host.TipManagerType, "AddTip", Host.Static,
                 Host.Type("QSC.QSys.Graphic.Pin"), Host.Type("QSC.QSys.Graphic.GraphicCanvas"), Host.Type("QSC.QSys.Design.ControlStyle"));
             var removeTip = DesignerHost.Method(host.TipManagerType, "RemoveTip", Host.Static, Host.Type("QSC.QSys.Design.ControlValue"));
+            var focusGeometry = DesignerHost.Method(Host.Type("QSC.QSys.Graphic.ProbeTip"), "get_FocusGeometry", Host.Instance);
+            var injectorGeometry = DesignerHost.Method(Host.Type("QSC.QSys.Graphic.InjectorTip"), "get_FocusGeometry", Host.Instance);
             _ = DesignerHost.RequiredField(host.FindAreaType, "_Choices", Host.Instance);
             _ = host.FindChoiceType.GetConstructor(Type.EmptyTypes) ?? throw new MissingMethodException("FindChoice constructor");
             foreach (string name in new[] { "Index", "Label", "IsEnabled", "Run", "Tag" })
@@ -41,6 +70,8 @@ internal sealed class NativeFindIntegration : IDisposable
             harmony.Patch(selectionChanged, postfix: new HarmonyMethod(typeof(NativeFindIntegration), nameof(AfterSelection)));
             harmony.Patch(addTip, postfix: new HarmonyMethod(typeof(NativeFindIntegration), nameof(AfterAttachment)));
             harmony.Patch(removeTip, postfix: new HarmonyMethod(typeof(NativeFindIntegration), nameof(AfterAttachment)));
+            harmony.Patch(focusGeometry, postfix: new HarmonyMethod(typeof(NativeFindIntegration), nameof(TipFocusGeometry)));
+            harmony.Patch(injectorGeometry, postfix: new HarmonyMethod(typeof(NativeFindIntegration), nameof(TipFocusGeometry)));
             // Include a Find panel that was already created before Core finished loading mods.
             var window = DesignerHost.Static("QSC.QSys.Commands.Find", "_ToolWindow");
             if (DesignerHost.Get(window, "Content") is { } area && host.FindAreaType.IsInstanceOfType(area))

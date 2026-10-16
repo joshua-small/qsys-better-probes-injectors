@@ -1,58 +1,57 @@
-# Validation and deferred application checks
+# Validation
 
-The owner authorized implementation while deferring anything requiring Computer
-Use. This milestone uses no Computer Use, launches no Designer instance, changes
-no installed module or user preferences, and touches no original design or Core.
+## Release 0.1.0 acceptance
 
-## Offline verification
+Validated on 2026-10-16 using native Computer Use in a disposable Designer
+10.5.0 (0-2609.007 10.5) installation. A separate copy of the small Audio - Mixers
+Meters and Test fixture contained two probes and one injector. The original
+fixture was preserved. Test keybindings were confined to the isolated Mods Core
+preferences; the package ships no default keys.
 
-`scripts/check.sh` builds Release output with warnings treated as errors and runs:
+Observed in Designer:
 
-- `tests/Logic`: stable typed cycles, wrapping, duplicate labels/IDs, unattached
-  and unknown state, selection exclusions, stale document/identity/attachment
-  rejection, retargeting, reconnect invalidation, operation-record failures,
-  exactly-one native detach request and preservation of other tools. This uses
-  a fake host; it does not exercise Designer.
-- `tests/HostContract`: SHA-256 guards, reflected member/signature shapes,
-  attachment dictionary types, native Find callback shape, injector inheritance,
-  status notifications, mod assembly identity/version and references. This reads
-  PE metadata without loading or executing vendor assemblies.
+- Normal module startup, exact host/Core acceptance and all seven menu commands.
+- Native Find by Context from both owning components, with attached and home rows,
+  type/count headings and correct attachment descriptions.
+- Actual tip highlighting for a probe on Pink Noise output and an injector on an
+  unwired Mixer 8x8 Input 1, including both tools attached at once.
+- Physical custom shortcuts for both cycle directions, two-probe wraparound,
+  single-injector wraparound and independent type selection.
+- Find Focused selects/highlights each attached tip. Find Home selects the owner
+  without detaching. Return Home removes only the focused tool; the other
+  attachment and visible gain/mute values remain unchanged.
+- Native return removes the graphic and restores the tool's control-panel icon.
 
-Build/test logs and the candidate payload hash are retained alongside the local
-build. The selected issue records the final counts and source commit. Successful
-compilation and metadata checks do not establish Harmony or application acceptance.
+Application testing exposed and fixed empty pin-label navigation, null native
+FocusGeometry on both tip types, and valid empty net names on unwired injector
+inputs. A final return-home fix clears the removed tip's highlight and locates
+its owner.
 
-## Required next application checks — deferred
+## Automated verification
 
-Use a disposable supported Designer copy and a synthetic design after the owner
-resumes application validation. Keep normal installation and publishing separate.
+Release compilation succeeded with zero warnings and errors. **65 portable logic
+checks** cover typed cycles, duplicate labels/identities, excluded contexts,
+stale document/selection/attachment, reconnect epochs, deferred navigation,
+receipt failure, exactly-one detach and preservation of other tools.
+**73 PE metadata checks** cover exact host hashes, reflected signatures/maps,
+Find callbacks, both tip geometry overrides and assembly references/version.
+These tests do not execute vendor code and do not substitute for UI acceptance.
 
-1. Verify normal module startup, exact host/Core guards, hook registration,
-   duplicate-load handling and clean shutdown. Verify initialization failure
-   removes all mod hooks and leaves native Find usable.
-2. Attach a probe and an injector, select each owning component and open native
-   Find in Context mode. Check the new destinations, counts, names and attachment
-   locations alongside existing snapshot/control-copy results. Reopen/float Find,
-   change selection and update attachments without duplicate or stale rows.
-3. Exercise same-page, other-page and nested schematic destinations, pin labels,
-   closed control panels, locked/password-protected containers, identical labels,
-   copied controls and previously unloaded target pages. Verify actual highlight
-   and selected object, not merely a returned native call.
-4. Test both cycle directions independently for each type, wrapping, empty lists,
-   single tools, unattached and unknown tools. Verify navigation changes no signal
-   attachment, gain or mute value.
-5. In eligible Emulate mode, return exactly one focused tool home. Verify its
-   graphic/control-panel appearance, attachment value and other tools' unchanged
-   state. Observe native Undo behavior without assuming it is available. Run-mode
-   and hardware acceptance remain separate and require an appropriate test system.
-6. Exercise command-menu clicks, custom keys through Better Shortcuts and Command
-   Palette execution/focus restoration. Check stale-selection/retargeting/deletion,
-   disconnect/reconnect, placement cursors, ordinary text, embedded script/browser
-   controls, main/floating windows and UI transitions. Floating command dispatch
-   is currently deliberately excluded, not implicitly accepted.
-7. Verify the expected native result after return-home errors and log failures.
-   Do not blindly retry an uncertain detach. Hash-check the preserved originals.
+## Remaining scope
 
-Default key selection, catalog onboarding, installable package validation,
-publication and installation are future delivery steps. The current issue remains
-open until the applicable acceptance and agreed delivery scope are fulfilled.
+Live Core/Run and hardware behavior, Undo, nested/closed/locked schematic pages,
+control copies, native snapshot-result coexistence, fault-injected startup and
+floating command dispatch have not been application-validated. Guard logic is
+covered offline where applicable; it is not presented as application evidence.
+Command Palette execution was attempted, but Computer Use targeting reactivated
+the main window and dismissed the overlay before search. Menu and physical-key
+execution were verified; palette execution remains a follow-up check.
+
+Raw captures, vendor binaries, build logs and operation receipts remain local.
+Only implementation, contracts and this scoped acceptance record are published.
+
+The final candidate (DLL SHA-256
+aea0c195aac7049565f88556bcab347f4fb51373009c35f2180dad299ed290d1)
+was restarted and rechecked: Find Focused highlighted the attached injector;
+Return Home removed its tip and highlight, restored the panel icon and selected
+the owning schematic component.
