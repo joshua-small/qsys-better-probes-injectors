@@ -1,5 +1,26 @@
 # Validation
 
+## Release 0.1.1 default shortcuts
+
+Validated on 2026-10-16 in the isolated Designer 10.5 installation with Mods Core
+0.1.6.0 and an empty preference store (no saved shortcut overrides). Physical
+Computer Use input verified Ctrl+F11 and Ctrl+Shift+F11 selecting the two probes,
+and Ctrl+F12 and Ctrl+Shift+F12 selecting the two injectors, including backward
+wraparound. In Emulate, Ctrl+Alt+H detached the focused injector from Mixer 8x8
+Input 1, restored its native panel icon and selected its owning component.
+Action and return receipts corroborated the visible results. The preference
+store remained empty, establishing that the bindings came from the mod defaults.
+
+The same five chords had also passed physical-input checks with explicit user
+assignments on 0.1.0, including Return Home for both tool types. This release only
+adds default gestures and changes its version; navigation and detach logic are
+unchanged. User overrides and default conflict handling remain owned by Mods Core.
+Release compilation again passed with zero warnings/errors, 65 portable logic
+checks and 73 host metadata checks. No hardware acceptance is implied.
+
+Validated 0.1.1 DLL SHA-256:
+`3bac1f943c00f7924417be746d8b821c42a9bec5cc4d46106bcbb8c8c87c7860`.
+
 ## Release 0.1.0 acceptance
 
 Validated on 2026-10-16 using native Computer Use in a disposable Designer

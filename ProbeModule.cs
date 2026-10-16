@@ -29,7 +29,9 @@ public sealed class ProbeModule : ModModule
                     Register($"{(previous ? "previous" : "next")}-{kind.ToString().ToLowerInvariant()}",
                         $"{(previous ? "Previous" : "Next")} {kind}",
                         () => Run(navigation.Cycle(capturedKind, previous)), () => navigation.CanCycle(capturedKind),
-                        "Current document; schematic or component canvas; no placement cursor");
+                        "Current document; schematic or component canvas; no placement cursor",
+                        new KeyGesture(kind == ToolKind.Probe ? Key.F11 : Key.F12,
+                            ModifierKeys.Control | (previous ? ModifierKeys.Shift : ModifierKeys.None)));
                 }
             foreach (var (id, title, action) in new[]
             {
@@ -44,7 +46,8 @@ public sealed class ProbeModule : ModModule
                     if (navigation.Plan(captured) is { } plan) Run(navigation.Execute(plan));
                 }, () => navigation.Plan(captured) is not null,
                     action == ToolAction.ReturnHome ? "One focused tool; connected Emulate/Run; no placement cursor"
-                    : "One focused tool; schematic or component canvas; no placement cursor");
+                    : "One focused tool; schematic or component canvas; no placement cursor",
+                    action == ToolAction.ReturnHome ? new KeyGesture(Key.H, ModifierKeys.Control | ModifierKeys.Alt) : null);
             }
             main.Closed += Closed;
             Host.Receipt(Id, "initialized", new { version = typeof(ProbeModule).Assembly.GetName().Version?.ToString(),
@@ -53,8 +56,8 @@ public sealed class ProbeModule : ModModule
         catch { integration?.Dispose(); host?.Dispose(); throw; }
     });
 
-    private static void Register(string id, string name, Action run, Func<bool> canRun, string when) =>
-        Commands.Register(new(Id + "/" + id, name, Name, run, () => Host.Enabled && canRun(), InMenu: true)
+    private static void Register(string id, string name, Action run, Func<bool> canRun, string when, KeyGesture? defaultGesture) =>
+        Commands.Register(new(Id + "/" + id, name, Name, run, () => Host.Enabled && canRun(), DefaultGesture: defaultGesture, InMenu: true)
         { When = when, ShortcutContext = () => !ControlInput.IsTextInput() });
 
     private void Run(Outcome result)
