@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "sourceArchive": "avitex-selected-identity-2026-10-13.zip",
+  "sourceArchiveSha256": "ef5779274a626ef955c4cd3574e5db58e544f5e48ba39e2c15cb1d6e17caf3a3",
+  "selectedOn": "2026-10-13",
+  "brand": "Avitex",
+  "files": [
+    {
+      "file": "avitex.ico",
+      "archiveEntry": "icons/avitex.ico",
+      "sha256": "3d6de532a364097398b2e69aa42309b214b1db318b30928dcbfbcdceb617aba4"
+    }
+  ]
+}
