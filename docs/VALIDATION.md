@@ -50,13 +50,48 @@ its owner.
 
 ## Automated verification
 
-Release compilation succeeded with zero warnings and errors. **65 portable logic
+Release 0.1.1 compilation succeeded with zero warnings and errors. **65 portable logic
 checks** cover typed cycles, duplicate labels/identities, excluded contexts,
 stale document/selection/attachment, reconnect epochs, deferred navigation,
 receipt failure, exactly-one detach and preservation of other tools.
 **73 PE metadata checks** cover exact host hashes, reflected signatures/maps,
 Find callbacks, both tip geometry overrides and assembly references/version.
 These tests do not execute vendor code and do not substitute for UI acceptance.
+
+### Portable lifecycle regressions
+
+The current portable suite has **192 checks**, including 127 additional lifecycle
+checks against the production `ToolNavigation` implementation. The fixture uses
+four probes and four injectors with duplicate labels and synthetic component,
+pin, control and value identities. It requires no Designer installation, vendor
+DLLs or saved design files.
+
+The additional cases cover:
+
+- Forward/backward wrapping, changed enumeration order, deletion down to an
+  empty family, repopulation, explicit focus and independent family cursors.
+- Document switches, returning to a previous document, a newly busy context
+  and a host navigation exception without advancing the cycle cursor.
+- Nineteen state changes during Return Home receipt writing, for each tool
+  type. The second validation must reject document/selection/focus changes,
+  deletion or duplicate identity, unknown or retargeted attachments, replaced
+  pins/controls/values, disconnect/reconnect, busy/editing/placement contexts,
+  and a tool already detached elsewhere. Rejection must not call native return.
+- Stable target identity despite changes to display labels or enumeration;
+  exactly one successful return, preservation of the other seven attachments
+  and an idempotent repeated return.
+
+Run from a source checkout or clean export:
+
+```sh
+dotnet run --project tests/Logic -c Release --artifacts-path ../build/logic
+```
+
+The existing CI logic job runs this same suite. These assertions establish the
+portable decision logic only. The fake host does not model native page loading,
+actual disconnection, keyboard dispatch, tip-map updates or Undo. A changed page
+label in a synthetic object is not evidence of successful cross-page navigation.
+No additional application or hardware acceptance is claimed.
 
 ## Remaining scope
 

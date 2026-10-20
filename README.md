@@ -1,7 +1,7 @@
 # Better Probes & Injectors
 
 Find, cycle through, and return Q-SYS Signal Probes and Signal Injectors home.
-Version 0.1.1 supports the exact Designer **10.5.0 (0-2609.007 10.5)** build with
+Version 0.1.2 supports the exact Designer **10.5.0 (0-2609.007 10.5)** build with
 Mods Core >=0.1.6 and <0.2.0. See [validation](docs/VALIDATION.md) for the accepted
 application scope and remaining checks.
 
@@ -64,6 +64,17 @@ Private reflection and Harmony hooks are version-specific internals, not a publi
 Q-SYS plugin API. See the [package contract](https://github.com/joshua-small/qsys-mod-catalog/blob/main/PACKAGE-CONTRACT.md).
 
 ## Build
+
+The portable regression suite needs only the .NET SDK from `global.json`:
+
+```sh
+dotnet run --project tests/Logic -c Release --artifacts-path ../build/logic
+```
+
+It compiles the production navigation logic with synthetic host objects, without
+Designer, vendor DLLs or Mods Core. It checks cycling and Return Home across
+document, selection, attachment and connection transitions. See
+[validation](docs/VALIDATION.md#portable-lifecycle-regressions) for its limits.
 
 Use .NET SDK 10.0.112 and an adjacent `qsys-mods-core` checkout at
 `63aa418b8872126be09a0896f25ba260fa30f457`, or set `CoreProject` explicitly.
