@@ -91,3 +91,7 @@ The pinned release publisher produces the catalog descriptor from a stable relea
 
 See [native contract](docs/NATIVE-CONTRACT.md), [ownership](NOTICE.md) and the
 [original work item](https://github.com/joshua-small/qsys-better-shortcuts/issues/11).
+
+## Window and interaction behavior
+
+Probe navigation excludes GraphicCanvas roots that are UCI pages, including derived page types. Schematic canvases and probe control panels keep their existing navigation behavior.
