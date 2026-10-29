@@ -101,10 +101,11 @@ internal sealed class DesignerHost : IToolHost, IDisposable
         lastCanvas = null; focusDocument = null;
         if (ControlInput.IsTextInput()) return;
         for (var current = focus; current is not null; current = ControlInput.Parent(current))
-            if (IsSupportedCanvas(current))
+            if (graphicCanvasType.IsInstanceOfType(current))
             {
-                // A probe control panel is supported; a UCI page keeps its own navigation.
-                lastCanvas = current; focusDocument = Document; return;
+                // The nearest canvas owns focus, including when it excludes our commands.
+                if (IsSupportedCanvas(current)) { lastCanvas = current; focusDocument = Document; }
+                return;
             }
     }
 
@@ -115,9 +116,10 @@ internal sealed class DesignerHost : IToolHost, IDisposable
         if (!main.IsActive || ControlInput.IsTextInput() || Keyboard.FocusedElement is not DependencyObject focus
             || Window.GetWindow(focus) != main) return false;
         for (var current = focus; current is not null; current = ControlInput.Parent(current))
-            if (IsSupportedCanvas(current)) return true;
+            if (graphicCanvasType.IsInstanceOfType(current)) return IsSupportedCanvas(current);
             else if (current is MenuBase or MenuItem or ToolBar)
-                return ReferenceEquals(focusDocument, Document) && lastCanvas is UIElement { IsVisible: true, IsEnabled: true };
+                return ReferenceEquals(focusDocument, Document) && lastCanvas is UIElement { IsVisible: true, IsEnabled: true }
+                    && IsSupportedCanvas(lastCanvas);
         return false;
     }
 

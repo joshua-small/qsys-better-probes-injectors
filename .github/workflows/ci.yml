@@ -11,3 +11,4 @@ jobs:
         with:
           global-json-file: global.json
       - run: dotnet run --project tests/Logic -c Release --artifacts-path ../build/logic
+      - run: dotnet run --project tests/Adapter -c Release --artifacts-path ../build/adapter

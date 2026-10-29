@@ -69,12 +69,16 @@ The portable regression suite needs only the .NET SDK from `global.json`:
 
 ```sh
 dotnet run --project tests/Logic -c Release --artifacts-path ../build/logic
+dotnet run --project tests/Adapter -c Release --artifacts-path ../build/adapter
 ```
 
 It compiles the production navigation and canvas classification logic with
 synthetic host objects, without Designer, vendor DLLs or Mods Core. It checks cycling and Return Home across
 document, selection, attachment and connection transitions. See
 [validation](docs/VALIDATION.md#portable-lifecycle-regressions) for its limits.
+The adapter suite compiles the actual focus methods against synthetic framework
+objects to check remembered-menu context and nearest-canvas rejection. It does
+not execute WPF or prove native parent/event behavior.
 
 Use the .NET SDK selected by `global.json` and an adjacent `qsys-mods-core` checkout
 at release v0.1.6 (`e3ecf33918488aab01aefdd9546c9992f0e7b0dc`), or set
@@ -101,6 +105,9 @@ including derived page types. Schematic canvases and probe control panels retain
 their existing command context. Moving focus from a schematic into a UCI clears
 the remembered canvas context before a menu can reuse it. Native Find callbacks
 retain their separate selection and attachment checks.
+Menu and toolbar commands recheck the remembered canvas root on each invocation,
+even without a focus-change event. The nearest graphic canvas decides context;
+an excluded UCI cannot fall through to an enclosing schematic canvas.
 
 The 0.1.3 artifact still requires the scoped application checks described in
 [validation](docs/VALIDATION.md#candidate-013-canvas-exclusion). No new Designer

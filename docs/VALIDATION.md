@@ -15,6 +15,15 @@ objects with similar names, changed roots and rejection with a retained tool
 selection. Both production helpers are compiled directly into the test project.
 The new metadata checks verify the GraphicCanvas Root member and UCI page type.
 
+An additional **27 adapter checks** compile the actual `DesignerHost.cs` focus
+methods with synthetic framework types. They reproduce a remembered root changing
+to UCI without a focus callback, and an excluded UCI nested inside a schematic.
+The initial adapter failed nine assertions; root revalidation and stopping at
+the nearest graphic canvas resolve those failures. Supported menu/toolbar reuse,
+document changes, hidden/disabled canvases, text input, foreign windows and the
+separate native Find route are checked too. These objects do not establish that
+Designer creates the synthetic nested-parent shape or delivers a particular event.
+
 These tests do not simulate WPF focus events or prove native menu/key behavior.
 For the exact rebuilt DLL, application acceptance must still confirm UCI focus
 exclusion, menu context after switching from a schematic, recovery when returning
