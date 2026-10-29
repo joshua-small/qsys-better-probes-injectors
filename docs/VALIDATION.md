@@ -1,5 +1,29 @@
 # Validation
 
+## Candidate 0.1.3 canvas exclusion
+
+Keyboard/menu context rejects UCI page roots using runtime assignability, so
+derived page types are excluded too. The same classification is used when
+remembering focus and when deciding whether commands can run. Schematic and
+component-panel contexts retain their previous behavior; native Find remains a
+separately guarded callback path.
+
+The portable suite contains **227 checks**: the 192 navigation/lifecycle checks
+below plus 35 canvas checks. The latter cover schematic and component roots,
+base and multiply-derived UCI page roots, derived graphic canvases, unrelated
+objects with similar names, changed roots and rejection with a retained tool
+selection. Both production helpers are compiled directly into the test project.
+The new metadata checks verify the GraphicCanvas Root member and UCI page type.
+
+These tests do not simulate WPF focus events or prove native menu/key behavior.
+For the exact rebuilt DLL, application acceptance must still confirm UCI focus
+exclusion, menu context after switching from a schematic, recovery when returning
+to a schematic/control panel, and unchanged native Find/Return Home behavior.
+Use a separate saved fixture, record DLL and host hashes, and verify unrelated
+attachments and preferences are preserved. Older application evidence below
+does not establish acceptance of the new binary. Designer 10.5.1, live Core and
+hardware acceptance are not claimed here.
+
 ## Release 0.1.1 default shortcuts
 
 Validated on 2026-10-16 in the isolated Designer 10.5 installation with Mods Core
@@ -60,7 +84,7 @@ These tests do not execute vendor code and do not substitute for UI acceptance.
 
 ### Portable lifecycle regressions
 
-The current portable suite has **192 checks**, including 127 additional lifecycle
+The navigation/lifecycle portion has **192 checks**, including 127 additional lifecycle
 checks against the production `ToolNavigation` implementation. The fixture uses
 four probes and four injectors with duplicate labels and synthetic component,
 pin, control and value identities. It requires no Designer installation, vendor

@@ -36,6 +36,8 @@ void Method(string type, string name, params string[] parameters) => Check(Hiera
     .Any(h => { var method = reader.GetMethodDefinition(h); return reader.GetString(method.Name) == name
         && method.DecodeSignature(names, (object?)null).ParameterTypes.SequenceEqual(parameters); }), type + "." + name + "(" + string.Join(",", parameters) + ")");
 const string D = "QSC.QSys.Design.", G = "QSC.QSys.Graphic.", F = "QSC.QSys.windows.Find.", T = "QSC.QSys.Tools.";
+Property(G + "GraphicCanvas", "Root");
+Check(types.ContainsKey(D + "WebPanels.Page"), "UCI page runtime type exists for assignability exclusion");
 string manager = Field("QSC.QSys.App", "Manager");
 foreach (string property in new[] { "Document", "IsLoading", "IsInUndo", "IsInEndOperation" }) Property(manager, property);
 Method(manager, "GetElementsOfType");
@@ -85,9 +87,11 @@ var action = new DelegateReceiver(); var callback = (TestCallback)Delegate.Creat
 callback("choice", new()); Check(action.Ran, "Contravariant native Find callback binding pattern");
 using var moduleStream = File.OpenRead(args[1]); using var modulePe = new PEReader(moduleStream); var module = modulePe.GetMetadataReader();
 Check(module.GetString(module.GetAssemblyDefinition().Name) == "Designer.Modules.BetterProbesInjectors", "Mod assembly identity");
-Check(module.GetAssemblyDefinition().Version == new Version(0, 1, 2, 0), "Mod assembly version");
+Check(module.GetAssemblyDefinition().Version == new Version(0, 1, 3, 0), "Mod assembly version");
 var references = module.AssemblyReferences.Select(h => module.GetString(module.GetAssemblyReference(h).Name)).ToArray();
 Check(references.Contains("Qmm.mods-core.Runtime") && references.Contains("0Harmony"), "Shared runtime and Harmony references");
+Check(module.AssemblyReferences.Select(module.GetAssemblyReference).Single(r => module.GetString(r.Name) == "Qmm.mods-core.Runtime").Version
+    == new Version(0, 1, 6, 0), "Build retains the minimum Core 0.1.6 assembly reference");
 Check(!references.Contains("Q-Sys Designer"), "Private host access remains isolated behind the reflection adapter");
 Console.WriteLine($"{checks} metadata/contract checks passed. No vendor assembly was loaded or executed.");
 

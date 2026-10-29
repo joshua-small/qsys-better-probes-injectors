@@ -90,8 +90,8 @@ internal sealed class DesignerHost : IToolHost, IDisposable
     {
         if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == "IsConnected") Interlocked.Increment(ref connectionEpoch);
     }
-    private bool IsSupportedCanvas(object canvas) => graphicCanvasType.IsInstanceOfType(canvas)
-        && !Host.Type("QSC.QSys.Design.WebPanels.Page").IsInstanceOfType(Get(canvas, "Root"));
+    private bool IsSupportedCanvas(object canvas) => CanvasContext.IsSupported(canvas, graphicCanvasType,
+        Host.Type("QSC.QSys.Design.WebPanels.Page"), value => Get(value, "Root"));
 
     private void RememberFocus(DependencyObject? focus)
     {

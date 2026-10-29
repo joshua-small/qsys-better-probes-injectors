@@ -105,6 +105,7 @@ Check(nav.Plan(ToolAction.ReturnHome) is not null, "A verified tip on an unwired
 foreach (var (name, mutate) in mutations.Where(m => m.Name is not ("selection changed" or "focused control retargeted" or "selection cleared" or "selection expanded")))
     Check(!ToolNavigation.CanCompleteNavigation(Baseline(), mutate(Baseline()), a), "Deferred tip selection rejects: " + name);
 LifecycleChecks.Run(Check);
+CanvasContextChecks.Run(Check);
 Console.WriteLine($"{checks} logic checks passed; no Designer, UI or hardware was used.");
 
 internal sealed class FakeHost(Workspace state) : IToolHost

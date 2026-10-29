@@ -1,7 +1,7 @@
 # Better Probes & Injectors
 
 Find, cycle through, and return Q-SYS Signal Probes and Signal Injectors home.
-Version 0.1.2 supports the exact Designer **10.5.0 (0-2609.007 10.5)** build with
+This source is the 0.1.3 candidate for Designer **10.5.0 (0-2609.007 10.5)** with
 Mods Core >=0.1.6 and <0.2.0. See [validation](docs/VALIDATION.md) for the accepted
 application scope and remaining checks.
 
@@ -71,13 +71,15 @@ The portable regression suite needs only the .NET SDK from `global.json`:
 dotnet run --project tests/Logic -c Release --artifacts-path ../build/logic
 ```
 
-It compiles the production navigation logic with synthetic host objects, without
-Designer, vendor DLLs or Mods Core. It checks cycling and Return Home across
+It compiles the production navigation and canvas classification logic with
+synthetic host objects, without Designer, vendor DLLs or Mods Core. It checks cycling and Return Home across
 document, selection, attachment and connection transitions. See
 [validation](docs/VALIDATION.md#portable-lifecycle-regressions) for its limits.
 
-Use .NET SDK 10.0.112 and an adjacent `qsys-mods-core` checkout at
-`63aa418b8872126be09a0896f25ba260fa30f457`, or set `CoreProject` explicitly.
+Use the .NET SDK selected by `global.json` and an adjacent `qsys-mods-core` checkout
+at release v0.1.6 (`e3ecf33918488aab01aefdd9546c9992f0e7b0dc`), or set
+`CoreProject` explicitly. Building against that minimum version preserves the
+existing Core dependency; newer Core 0.1.x versions remain eligible at runtime.
 Keep Windows and WSL outputs separate. From WSL:
 
 ```sh
@@ -94,4 +96,12 @@ See [native contract](docs/NATIVE-CONTRACT.md), [ownership](NOTICE.md) and the
 
 ## Window and interaction behavior
 
-Probe navigation excludes GraphicCanvas roots that are UCI pages, including derived page types. Schematic canvases and probe control panels keep their existing navigation behavior.
+Keyboard and Tools menu commands exclude GraphicCanvas roots that are UCI pages,
+including derived page types. Schematic canvases and probe control panels retain
+their existing command context. Moving focus from a schematic into a UCI clears
+the remembered canvas context before a menu can reuse it. Native Find callbacks
+retain their separate selection and attachment checks.
+
+The 0.1.3 artifact still requires the scoped application checks described in
+[validation](docs/VALIDATION.md#candidate-013-canvas-exclusion). No new Designer
+10.5.1 or hardware acceptance is claimed by the portable suite or build.
