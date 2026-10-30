@@ -1,5 +1,98 @@
 # Validation
 
+## Release 0.1.3 canvas exclusion
+
+Keyboard/menu context rejects UCI page roots using runtime assignability, so
+derived page types are excluded too. The same classification is used when
+remembering focus and when deciding whether commands can run. Schematic and
+component-panel contexts retain their previous behavior; native Find remains a
+separately guarded callback path.
+
+The portable suite contains **227 checks**: the 192 navigation/lifecycle checks
+below plus 35 canvas checks. The latter cover schematic and component roots,
+base and multiply-derived UCI page roots, derived graphic canvases, unrelated
+objects with similar names, changed roots and rejection with a retained tool
+selection. Both production helpers are compiled directly into the test project.
+The new metadata checks verify the GraphicCanvas Root member and UCI page type.
+
+An additional **27 adapter checks** compile the actual `DesignerHost.cs` focus
+methods with synthetic framework types. They reproduce a remembered root changing
+to UCI without a focus callback, and an excluded UCI nested inside a schematic.
+The initial adapter failed nine assertions; root revalidation and stopping at
+the nearest graphic canvas resolve those failures. Supported menu/toolbar reuse,
+document changes, hidden/disabled canvases, text input, foreign windows and the
+separate native Find route are checked too. These objects do not establish that
+Designer creates the synthetic nested-parent shape or delivers a particular event.
+
+These tests do not simulate WPF focus events or prove native menu/key behavior.
+
+### Bounded Designer 10.5.0 checks
+
+Checks on 2026-10-30 used the exact 0.1.3 DLL with SHA-256
+`f34b447911ece595af028048990c35b3dadbcd182d144ee53183cb493828ba2a`
+and Mods Core 0.1.11.0. The initial partial checks and focused follow-ups establish
+these bounded observations:
+
+- Initialization, seven commands and default gestures were verified. Physical
+  schematic cycling worked in both directions with two probes and two injectors,
+  independent families, wraparound and component-panel recovery.
+- Four cycle chords and Return Home produced no dispatch on a blank UCI canvas.
+  That click selected the UCI Page, and the host was in disconnected Design mode;
+  retained-tool and attached Return Home preconditions were not demonstrated.
+  Cycling does not require a selected tool, so the four cycle observations remain
+  useful bounded evidence. They do not isolate every native focus guard.
+- A fresh schematic-to-existing-UCI-control transition, without first clicking
+  blank UCI space, produced no dispatch or navigation for all four cycle chords.
+  All seven menu actions were disabled. Returning to the schematic recovered both
+  families. The earlier blank-UCI and UCI script-editor exclusions remain separate
+  observations.
+- One Probe selection survived switching to the UCI Layout tab. The observed focus
+  was on the tab; true UCI-canvas focus with that retained tool was not demonstrated.
+  No runtime Return Home exclusion from that combined context is claimed.
+- Both tool types navigated through stock Find Context to their attached tip and
+  home component in the same already-Context panel/process. The original failure
+  to operate the Find dropdown was not repaired or retested. Product Find
+  Focused/Home results remain separate evidence from stock Find UI behavior.
+- Injector Return Home preserved an attached Probe. The follow-up Probe Return
+  Home preserved an attached Injector. Returned icons, owner highlights, remaining
+  tips and visible gain/mute supported those observations. Runtime attachment and
+  isolation confirmation is visual: production telemetry records requests but
+  explicitly does not confirm the runtime attachment state.
+- Local Emulation was stopped, separate results saved and original/arm designs
+  preserved. Ten settings, native preferences and launch records were restored
+  byte-for-byte per follow-up session group. Saved designs do not establish runtime
+  attachment persistence after Emulation stops.
+
+### Separate Designer 10.5.1 smoke
+
+The same DLL and Mods Core 0.1.11.0 passed a short smoke on 2026-10-30 using the
+existing compatibility consent. Actual loaded Designer, ModuleCommon, Core and
+product identities were checked. There was no rebuild or guard/consent change.
+
+- Initialization exposed seven commands and the expected defaults. Physical
+  forward/reverse cycling worked for both families.
+- A fresh schematic-to-UCI-control transition excluded all four cycle chords and
+  disabled all seven menu actions; schematic focus restored both cycle families.
+- In local Emulate, product Find Focused and Home located each attached tool and
+  owner. Each physical Return Home restored its icon while the opposite family
+  remained attached, with visible gain/mute unchanged. Attachment confirmation
+  remains visual rather than a telemetry assertion.
+- Both sessions exited normally after stopping local Emulation and saving separate
+  results. Source/arm copies and ten settings/preferences/launch files were
+  preserved or restored. The closure check reported unchanged managed consent
+  state; no separate post-state copy was available for independent byte comparison.
+
+This smoke does not retarget the package's 10.5.0 host hashes, remove compatibility
+warnings, repeat the full 10.5.0 coverage or establish general 10.5.1 compatibility.
+Stock Find dropdown operation was not tested in this arm.
+
+The retained-tool/UCI-canvas-focus combination remains **NOT DEMONSTRATED**. No
+native occurrence is claimed for synthetic nested/derived canvas or changed-root
+cases. Native attachment Undo, remapping, locked/nested pages, Viewer, live Core
+and hardware remain unverified. Recorded model fields do not prove whole-model
+or exact serialized wire-graph equivalence. No older result is promoted to
+acceptance of these exact bytes.
+
 ## Release 0.1.1 default shortcuts
 
 Validated on 2026-10-16 in the isolated Designer 10.5 installation with Mods Core
@@ -50,13 +143,48 @@ its owner.
 
 ## Automated verification
 
-Release compilation succeeded with zero warnings and errors. **65 portable logic
+Release 0.1.1 compilation succeeded with zero warnings and errors. **65 portable logic
 checks** cover typed cycles, duplicate labels/identities, excluded contexts,
 stale document/selection/attachment, reconnect epochs, deferred navigation,
 receipt failure, exactly-one detach and preservation of other tools.
 **73 PE metadata checks** cover exact host hashes, reflected signatures/maps,
 Find callbacks, both tip geometry overrides and assembly references/version.
 These tests do not execute vendor code and do not substitute for UI acceptance.
+
+### Portable lifecycle regressions
+
+The navigation/lifecycle portion has **192 checks**, including 127 additional lifecycle
+checks against the production `ToolNavigation` implementation. The fixture uses
+four probes and four injectors with duplicate labels and synthetic component,
+pin, control and value identities. It requires no Designer installation, vendor
+DLLs or saved design files.
+
+The additional cases cover:
+
+- Forward/backward wrapping, changed enumeration order, deletion down to an
+  empty family, repopulation, explicit focus and independent family cursors.
+- Document switches, returning to a previous document, a newly busy context
+  and a host navigation exception without advancing the cycle cursor.
+- Nineteen state changes during Return Home receipt writing, for each tool
+  type. The second validation must reject document/selection/focus changes,
+  deletion or duplicate identity, unknown or retargeted attachments, replaced
+  pins/controls/values, disconnect/reconnect, busy/editing/placement contexts,
+  and a tool already detached elsewhere. Rejection must not call native return.
+- Stable target identity despite changes to display labels or enumeration;
+  exactly one successful return, preservation of the other seven attachments
+  and an idempotent repeated return.
+
+Run from a source checkout or clean export:
+
+```sh
+dotnet run --project tests/Logic -c Release --artifacts-path ../build/logic
+```
+
+The existing CI logic job runs this same suite. These assertions establish the
+portable decision logic only. The fake host does not model native page loading,
+actual disconnection, keyboard dispatch, tip-map updates or Undo. A changed page
+label in a synthetic object is not evidence of successful cross-page navigation.
+No additional application or hardware acceptance is claimed.
 
 ## Remaining scope
 

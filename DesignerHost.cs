@@ -90,6 +90,9 @@ internal sealed class DesignerHost : IToolHost, IDisposable
     {
         if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == "IsConnected") Interlocked.Increment(ref connectionEpoch);
     }
+    private bool IsSupportedCanvas(object canvas) => CanvasContext.IsSupported(canvas, graphicCanvasType,
+        Host.Type("QSC.QSys.Design.WebPanels.Page"), value => Get(value, "Root"));
+
     private void RememberFocus(DependencyObject? focus)
     {
         if (focus is null) return;
@@ -100,8 +103,9 @@ internal sealed class DesignerHost : IToolHost, IDisposable
         for (var current = focus; current is not null; current = ControlInput.Parent(current))
             if (graphicCanvasType.IsInstanceOfType(current))
             {
-                // A probe's native control panel is also a GraphicCanvas. No UCI-only operation is performed.
-                lastCanvas = current; focusDocument = Document; return;
+                // The nearest canvas owns focus, including when it excludes our commands.
+                if (IsSupportedCanvas(current)) { lastCanvas = current; focusDocument = Document; }
+                return;
             }
     }
 
@@ -112,9 +116,10 @@ internal sealed class DesignerHost : IToolHost, IDisposable
         if (!main.IsActive || ControlInput.IsTextInput() || Keyboard.FocusedElement is not DependencyObject focus
             || Window.GetWindow(focus) != main) return false;
         for (var current = focus; current is not null; current = ControlInput.Parent(current))
-            if (graphicCanvasType.IsInstanceOfType(current)) return true;
+            if (graphicCanvasType.IsInstanceOfType(current)) return IsSupportedCanvas(current);
             else if (current is MenuBase or MenuItem or ToolBar)
-                return ReferenceEquals(focusDocument, Document) && lastCanvas is UIElement { IsVisible: true, IsEnabled: true };
+                return ReferenceEquals(focusDocument, Document) && lastCanvas is UIElement { IsVisible: true, IsEnabled: true }
+                    && IsSupportedCanvas(lastCanvas);
         return false;
     }
 

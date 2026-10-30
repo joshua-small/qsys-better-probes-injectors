@@ -64,6 +64,14 @@ undo transaction is invented for this live-control action.
 - Active placement, text/script input, busy document operations and multi-selection
   exclude commands. Floating command dispatch is deferred; native Find callbacks
   may come from its own visible native panel.
+- Keyboard/menu focus walks only accept graphic canvases whose Root is not an
+  instance of `QSC.QSys.Design.WebPanels.Page`, including derived page types.
+  Remembered focus is cleared before examining a new non-menu context, preventing
+  UCI focus from retaining an earlier schematic canvas for menu commands.
+  Menu/toolbar fallback revalidates the remembered root as well as document,
+  visibility and enabled state. Both focus walks stop at the first graphic
+  canvas even when it is excluded; outer canvases cannot grant permission.
+  Portable canvas classification tests do not establish native focus delivery.
 - Harmony ownership is `joshua-small.better-probes-injectors.find`. Only the
   native selection handler, attachment add/remove methods and both tip FocusGeometry getters are patched.
   Attachment refresh is queued after native work; native search results are

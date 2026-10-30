@@ -104,6 +104,8 @@ host.State = Baseline() with { Tools = [a with { Attachment = a.Attachment! with
 Check(nav.Plan(ToolAction.ReturnHome) is not null, "A verified tip on an unwired native net remains a returnable attachment");
 foreach (var (name, mutate) in mutations.Where(m => m.Name is not ("selection changed" or "focused control retargeted" or "selection cleared" or "selection expanded")))
     Check(!ToolNavigation.CanCompleteNavigation(Baseline(), mutate(Baseline()), a), "Deferred tip selection rejects: " + name);
+LifecycleChecks.Run(Check);
+CanvasContextChecks.Run(Check);
 Console.WriteLine($"{checks} logic checks passed; no Designer, UI or hardware was used.");
 
 internal sealed class FakeHost(Workspace state) : IToolHost
@@ -113,10 +115,12 @@ internal sealed class FakeHost(Workspace state) : IToolHost
     internal int Returns, Navigations, Records;
     internal string? ReturnedId;
     internal Action? OnRecord;
+    internal Action? OnCapture;
+    internal Action? OnNavigate;
     internal bool CaptureFromFind;
     internal readonly List<string> Events = [];
-    public Workspace Capture(bool fromFind = false) { CaptureFromFind = fromFind; Events.Add("capture"); return State; }
-    public void Navigate(ToolItem tool, bool homeComponent) { Navigations++; Last = (tool, homeComponent); }
+    public Workspace Capture(bool fromFind = false) { CaptureFromFind = fromFind; Events.Add("capture"); OnCapture?.Invoke(); return State; }
+    public void Navigate(ToolItem tool, bool homeComponent) { OnNavigate?.Invoke(); Navigations++; Last = (tool, homeComponent); }
     public void RecordReturn(ToolItem tool) { Records++; Events.Add("record"); OnRecord?.Invoke(); }
     public void ReturnHome(ToolItem tool)
     {

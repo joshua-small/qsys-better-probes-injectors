@@ -1,7 +1,7 @@
 # Better Probes & Injectors
 
 Find, cycle through, and return Q-SYS Signal Probes and Signal Injectors home.
-Version 0.1.1 supports the exact Designer **10.5.0 (0-2609.007 10.5)** build with
+Version 0.1.3 targets Designer **10.5.0 (0-2609.007 10.5)** with
 Mods Core >=0.1.6 and <0.2.0. See [validation](docs/VALIDATION.md) for the accepted
 application scope and remaining checks.
 
@@ -65,8 +65,25 @@ Q-SYS plugin API. See the [package contract](https://github.com/joshua-small/qsy
 
 ## Build
 
-Use .NET SDK 10.0.112 and an adjacent `qsys-mods-core` checkout at
-`63aa418b8872126be09a0896f25ba260fa30f457`, or set `CoreProject` explicitly.
+The portable regression suite needs only the .NET SDK from `global.json`:
+
+```sh
+dotnet run --project tests/Logic -c Release --artifacts-path ../build/logic
+dotnet run --project tests/Adapter -c Release --artifacts-path ../build/adapter
+```
+
+It compiles the production navigation and canvas classification logic with
+synthetic host objects, without Designer, vendor DLLs or Mods Core. It checks cycling and Return Home across
+document, selection, attachment and connection transitions. See
+[validation](docs/VALIDATION.md#portable-lifecycle-regressions) for its limits.
+The adapter suite compiles the actual focus methods against synthetic framework
+objects to check remembered-menu context and nearest-canvas rejection. It does
+not execute WPF or prove native parent/event behavior.
+
+Use the .NET SDK selected by `global.json` and an adjacent `qsys-mods-core` checkout
+at release v0.1.6 (`e3ecf33918488aab01aefdd9546c9992f0e7b0dc`), or set
+`CoreProject` explicitly. Building against that minimum version preserves the
+existing Core dependency; newer Core 0.1.x versions remain eligible at runtime.
 Keep Windows and WSL outputs separate. From WSL:
 
 ```sh
@@ -80,3 +97,24 @@ The pinned release publisher produces the catalog descriptor from a stable relea
 
 See [native contract](docs/NATIVE-CONTRACT.md), [ownership](NOTICE.md) and the
 [original work item](https://github.com/joshua-small/qsys-better-shortcuts/issues/11).
+
+## Window and interaction behavior
+
+Keyboard and Tools menu commands exclude GraphicCanvas roots that are UCI pages,
+including derived page types. Schematic canvases and probe control panels retain
+their existing command context. Moving focus from a schematic into a UCI clears
+the remembered canvas context before a menu can reuse it. Native Find callbacks
+retain their separate selection and attachment checks.
+Menu and toolbar commands recheck the remembered canvas root on each invocation,
+even without a focus-change event. The nearest graphic canvas decides context;
+an excluded UCI cannot fall through to an enclosing schematic canvas.
+
+The exact 0.1.3 artifact passed bounded Designer 10.5.0 checks for schematic
+cycling, fresh UCI-control exclusion and recovery, native Find Context for both
+tool types, and local Emulate Return Home while preserving the other attachment.
+A separate Designer 10.5.1 smoke covered initialization, cycling, UCI-control
+exclusion and both Return Home directions using existing compatibility consent.
+It does not change the package's 10.5.0 target or compatibility warnings.
+See [validation](docs/VALIDATION.md#bounded-designer-1050-checks) for details.
+True UCI-canvas focus while retaining a schematic tool was not demonstrated;
+runtime attachment confirmation is visual. Live Core/hardware remains untested.
