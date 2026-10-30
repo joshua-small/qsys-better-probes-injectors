@@ -1,6 +1,6 @@
 # Validation
 
-## Candidate 0.1.3 canvas exclusion
+## Release 0.1.3 canvas exclusion
 
 Keyboard/menu context rejects UCI page roots using runtime assignability, so
 derived page types are excluded too. The same classification is used when
@@ -30,7 +30,8 @@ These tests do not simulate WPF focus events or prove native menu/key behavior.
 
 Checks on 2026-10-30 used the exact 0.1.3 DLL with SHA-256
 `f34b447911ece595af028048990c35b3dadbcd182d144ee53183cb493828ba2a`
-and Mods Core 0.1.11.0. The result is partial, with these observations:
+and Mods Core 0.1.11.0. The initial partial checks and focused follow-ups establish
+these bounded observations:
 
 - Initialization, seven commands and default gestures were verified. Physical
   schematic cycling worked in both directions with two probes and two injectors,
@@ -40,25 +41,57 @@ and Mods Core 0.1.11.0. The result is partial, with these observations:
   retained-tool and attached Return Home preconditions were not demonstrated.
   Cycling does not require a selected tool, so the four cycle observations remain
   useful bounded evidence. They do not isolate every native focus guard.
-- The seven menu actions were disabled after blank UCI and UCI-control focus.
-  The control check followed blank UCI; a fresh schematic-to-control transition
-  remains to be checked. Four cycle chords were excluded in the UCI script editor.
-- Probe stock Find Context, attached navigation and Home worked. Injector product
-  Find Focused/Home and Return Home worked while another Probe stayed attached.
-  Injector stock Find Context remained unverified because its dropdown could not
-  be operated reliably. Product Find commands are separate evidence.
-- Probe Return Home restored its icon/owner highlight and visible gain/mute, but
-  preservation of another attached tool was not fully demonstrated in that arm.
-  Local Emulation was stopped, separate results saved, original designs preserved,
-  and settings restored. Saved designs do not establish runtime attachment
-  persistence after Emulation stops.
+- A fresh schematic-to-existing-UCI-control transition, without first clicking
+  blank UCI space, produced no dispatch or navigation for all four cycle chords.
+  All seven menu actions were disabled. Returning to the schematic recovered both
+  families. The earlier blank-UCI and UCI script-editor exclusions remain separate
+  observations.
+- One Probe selection survived switching to the UCI Layout tab. The observed focus
+  was on the tab; true UCI-canvas focus with that retained tool was not demonstrated.
+  No runtime Return Home exclusion from that combined context is claimed.
+- Both tool types navigated through stock Find Context to their attached tip and
+  home component in the same already-Context panel/process. The original failure
+  to operate the Find dropdown was not repaired or retested. Product Find
+  Focused/Home results remain separate evidence from stock Find UI behavior.
+- Injector Return Home preserved an attached Probe. The follow-up Probe Return
+  Home preserved an attached Injector. Returned icons, owner highlights, remaining
+  tips and visible gain/mute supported those observations. Runtime attachment and
+  isolation confirmation is visual: production telemetry records requests but
+  explicitly does not confirm the runtime attachment state.
+- Local Emulation was stopped, separate results saved and original/arm designs
+  preserved. Ten settings, native preferences and launch records were restored
+  byte-for-byte per follow-up session group. Saved designs do not establish runtime
+  attachment persistence after Emulation stops.
 
-The retained-tool/UCI-canvas focus combination, fresh UCI-control transition,
-Injector stock Find UI and opposite-arm attachment isolation remain explicit
-follow-up cases. No native occurrence is claimed for synthetic nested/derived
-canvas cases. Designer 10.5.1 checks are pending; live Core, hardware and native
-attachment Undo remain unverified. No older result is promoted to acceptance of
-these exact bytes.
+### Separate Designer 10.5.1 smoke
+
+The same DLL and Mods Core 0.1.11.0 passed a short smoke on 2026-10-30 using the
+existing compatibility consent. Actual loaded Designer, ModuleCommon, Core and
+product identities were checked. There was no rebuild or guard/consent change.
+
+- Initialization exposed seven commands and the expected defaults. Physical
+  forward/reverse cycling worked for both families.
+- A fresh schematic-to-UCI-control transition excluded all four cycle chords and
+  disabled all seven menu actions; schematic focus restored both cycle families.
+- In local Emulate, product Find Focused and Home located each attached tool and
+  owner. Each physical Return Home restored its icon while the opposite family
+  remained attached, with visible gain/mute unchanged. Attachment confirmation
+  remains visual rather than a telemetry assertion.
+- Both sessions exited normally after stopping local Emulation and saving separate
+  results. Source/arm copies and ten settings/preferences/launch files were
+  preserved or restored. The closure check reported unchanged managed consent
+  state; no separate post-state copy was available for independent byte comparison.
+
+This smoke does not retarget the package's 10.5.0 host hashes, remove compatibility
+warnings, repeat the full 10.5.0 coverage or establish general 10.5.1 compatibility.
+Stock Find dropdown operation was not tested in this arm.
+
+The retained-tool/UCI-canvas-focus combination remains **NOT DEMONSTRATED**. No
+native occurrence is claimed for synthetic nested/derived canvas or changed-root
+cases. Native attachment Undo, remapping, locked/nested pages, Viewer, live Core
+and hardware remain unverified. Recorded model fields do not prove whole-model
+or exact serialized wire-graph equivalence. No older result is promoted to
+acceptance of these exact bytes.
 
 ## Release 0.1.1 default shortcuts
 

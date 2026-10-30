@@ -1,7 +1,7 @@
 # Better Probes & Injectors
 
 Find, cycle through, and return Q-SYS Signal Probes and Signal Injectors home.
-This source is the 0.1.3 candidate for Designer **10.5.0 (0-2609.007 10.5)** with
+Version 0.1.3 targets Designer **10.5.0 (0-2609.007 10.5)** with
 Mods Core >=0.1.6 and <0.2.0. See [validation](docs/VALIDATION.md) for the accepted
 application scope and remaining checks.
 
@@ -109,9 +109,12 @@ Menu and toolbar commands recheck the remembered canvas root on each invocation,
 even without a focus-change event. The nearest graphic canvas decides context;
 an excluded UCI cannot fall through to an enclosing schematic canvas.
 
-The exact 0.1.3 artifact has partial, bounded Designer 10.5.0 checks recorded in
-[validation](docs/VALIDATION.md#bounded-designer-1050-checks), including schematic
-cycles, UCI no-dispatch observations and local Emulate Find/Return Home results.
-Retained-tool UCI focus, a fresh schematic-to-UCI-control transition and two
-native Find/attachment-isolation cases remain open. Designer 10.5.1 acceptance
-is pending; the portable suite and build do not establish hardware behavior.
+The exact 0.1.3 artifact passed bounded Designer 10.5.0 checks for schematic
+cycling, fresh UCI-control exclusion and recovery, native Find Context for both
+tool types, and local Emulate Return Home while preserving the other attachment.
+A separate Designer 10.5.1 smoke covered initialization, cycling, UCI-control
+exclusion and both Return Home directions using existing compatibility consent.
+It does not change the package's 10.5.0 target or compatibility warnings.
+See [validation](docs/VALIDATION.md#bounded-designer-1050-checks) for details.
+True UCI-canvas focus while retaining a schematic tool was not demonstrated;
+runtime attachment confirmation is visual. Live Core/hardware remains untested.
