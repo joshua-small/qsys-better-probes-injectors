@@ -109,6 +109,9 @@ Menu and toolbar commands recheck the remembered canvas root on each invocation,
 even without a focus-change event. The nearest graphic canvas decides context;
 an excluded UCI cannot fall through to an enclosing schematic canvas.
 
-The 0.1.3 artifact still requires the scoped application checks described in
-[validation](docs/VALIDATION.md#candidate-013-canvas-exclusion). No new Designer
-10.5.1 or hardware acceptance is claimed by the portable suite or build.
+The exact 0.1.3 artifact has partial, bounded Designer 10.5.0 checks recorded in
+[validation](docs/VALIDATION.md#bounded-designer-1050-checks), including schematic
+cycles, UCI no-dispatch observations and local Emulate Find/Return Home results.
+Retained-tool UCI focus, a fresh schematic-to-UCI-control transition and two
+native Find/attachment-isolation cases remain open. Designer 10.5.1 acceptance
+is pending; the portable suite and build do not establish hardware behavior.

@@ -25,13 +25,40 @@ separate native Find route are checked too. These objects do not establish that
 Designer creates the synthetic nested-parent shape or delivers a particular event.
 
 These tests do not simulate WPF focus events or prove native menu/key behavior.
-For the exact rebuilt DLL, application acceptance must still confirm UCI focus
-exclusion, menu context after switching from a schematic, recovery when returning
-to a schematic/control panel, and unchanged native Find/Return Home behavior.
-Use a separate saved fixture, record DLL and host hashes, and verify unrelated
-attachments and preferences are preserved. Older application evidence below
-does not establish acceptance of the new binary. Designer 10.5.1, live Core and
-hardware acceptance are not claimed here.
+
+### Bounded Designer 10.5.0 checks
+
+Checks on 2026-10-30 used the exact 0.1.3 DLL with SHA-256
+`f34b447911ece595af028048990c35b3dadbcd182d144ee53183cb493828ba2a`
+and Mods Core 0.1.11.0. The result is partial, with these observations:
+
+- Initialization, seven commands and default gestures were verified. Physical
+  schematic cycling worked in both directions with two probes and two injectors,
+  independent families, wraparound and component-panel recovery.
+- Four cycle chords and Return Home produced no dispatch on a blank UCI canvas.
+  That click selected the UCI Page, and the host was in disconnected Design mode;
+  retained-tool and attached Return Home preconditions were not demonstrated.
+  Cycling does not require a selected tool, so the four cycle observations remain
+  useful bounded evidence. They do not isolate every native focus guard.
+- The seven menu actions were disabled after blank UCI and UCI-control focus.
+  The control check followed blank UCI; a fresh schematic-to-control transition
+  remains to be checked. Four cycle chords were excluded in the UCI script editor.
+- Probe stock Find Context, attached navigation and Home worked. Injector product
+  Find Focused/Home and Return Home worked while another Probe stayed attached.
+  Injector stock Find Context remained unverified because its dropdown could not
+  be operated reliably. Product Find commands are separate evidence.
+- Probe Return Home restored its icon/owner highlight and visible gain/mute, but
+  preservation of another attached tool was not fully demonstrated in that arm.
+  Local Emulation was stopped, separate results saved, original designs preserved,
+  and settings restored. Saved designs do not establish runtime attachment
+  persistence after Emulation stops.
+
+The retained-tool/UCI-canvas focus combination, fresh UCI-control transition,
+Injector stock Find UI and opposite-arm attachment isolation remain explicit
+follow-up cases. No native occurrence is claimed for synthetic nested/derived
+canvas cases. Designer 10.5.1 checks are pending; live Core, hardware and native
+attachment Undo remain unverified. No older result is promoted to acceptance of
+these exact bytes.
 
 ## Release 0.1.1 default shortcuts
 
